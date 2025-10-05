@@ -131,10 +131,10 @@ sudo apt update
 sudo apt install -y apt-transport-https ca-certificates curl gpg
 
 # Download the public signing key for the Kubernetes package repositories
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
 # Add the Kubernetes apt repository
-echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.33/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 sudo apt update
 sudo apt install -y kubeadm kubelet kubectl
@@ -220,7 +220,7 @@ https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/#cal
 
 ```bash
 sudo apt-mark unhold kubeadm && \
-sudo apt update && sudo apt install -y kubeadm='1.33.x-*' && \
+sudo apt update && sudo apt install -y kubeadm='1.34.x-*' && \
 sudo apt-mark hold kubeadm
 ```
 
@@ -233,7 +233,7 @@ sudo kubeadm upgrade plan
 #### Choose a version to upgrade to
 
 ```bash
-sudo kubeadm upgrade apply v1.33.x
+sudo kubeadm upgrade apply v1.34.x
 ```
 
 ### Upgrade Cilium CNI
@@ -256,7 +256,7 @@ https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/#upg
 
 ```bash
 sudo apt-mark unhold kubelet kubectl && \
-sudo apt update && sudo apt install -y kubelet=1.33.x-00 kubectl=1.33.x-00 && \
+sudo apt update && sudo apt install -y kubelet=1.34.x-00 kubectl=1.34.x-00 && \
 sudo apt-mark hold kubelet kubectl
 
 sudo systemctl daemon-reload
