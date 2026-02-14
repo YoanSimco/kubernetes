@@ -88,11 +88,15 @@ sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyring
 sudo chmod a+r /etc/apt/keyrings/docker.asc
 
 # Add the repository to Apt sources:
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
+sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+sudo apt update
 
 # Install containerd
 sudo apt install -y containerd.io
@@ -112,11 +116,13 @@ https://kubernetes.io/docs/setup/production-environment/container-runtimes/#cont
 In `/etc/containerd/config.toml`:
 
 ```toml
-[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+[plugins.'io.containerd.cri.v1.runtime'.containerd.runtimes.runc]
   ...
-  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+  [plugins.'io.containerd.cri.v1.runtime'.containerd.runtimes.runc.options]
     SystemdCgroup = true
 ```
+
+> Note: This configuration is valid for containerd 2.x versions
 
 ```bash
 sudo systemctl restart containerd
@@ -131,10 +137,10 @@ sudo apt update
 sudo apt install -y apt-transport-https ca-certificates curl gpg
 
 # Download the public signing key for the Kubernetes package repositories
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.35/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
 # Add the Kubernetes apt repository
-echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.35/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 sudo apt update
 sudo apt install -y kubeadm kubelet kubectl
@@ -220,7 +226,7 @@ https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/#cal
 
 ```bash
 sudo apt-mark unhold kubeadm && \
-sudo apt update && sudo apt install -y kubeadm='1.34.x-*' && \
+sudo apt update && sudo apt install -y kubeadm='1.35.x-*' && \
 sudo apt-mark hold kubeadm
 ```
 
@@ -233,7 +239,7 @@ sudo kubeadm upgrade plan
 #### Choose a version to upgrade to
 
 ```bash
-sudo kubeadm upgrade apply v1.34.x
+sudo kubeadm upgrade apply v1.35.x
 ```
 
 ### Upgrade Cilium CNI
@@ -256,7 +262,7 @@ https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/#upg
 
 ```bash
 sudo apt-mark unhold kubelet kubectl && \
-sudo apt update && sudo apt install -y kubelet=1.34.x-00 kubectl=1.34.x-00 && \
+sudo apt update && sudo apt install -y kubelet=1.35.x-00 kubectl=1.35.x-00 && \
 sudo apt-mark hold kubelet kubectl
 
 sudo systemctl daemon-reload
